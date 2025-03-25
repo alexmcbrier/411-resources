@@ -13,6 +13,28 @@ configure_logger(logger)
 
 @dataclass
 class Boxer:
+    """
+    A class to manage a boxer and their details / stats.
+
+    Attributes:
+        id (int): The current boxer.
+                                    boxer id number starts at 1
+        name (str): The name of the boxer.
+        weight (int): The weight of the boxer,
+                                    must be greater than 125.
+        height (int): The height of the boxer.
+                                    must be greater than 0.
+        reach (float): Reach is the distance from the boxer's shoulder to their fist.
+                                    must be greater than 0.
+        age (int): The age of the boxer.
+                                    must be between age of 18 and 40
+        weight_class (str): the weight class of the boxer
+                                    must be greater than 125 weight for weight class
+                                    heavyweight - greater than or equal to weight of 203
+                                    middleweight - between 166 and 203
+                                    lightweight - between 133 and 166
+                                    featherweight - between 125 and 133
+    """
     id: int
     name: str
     weight: int
@@ -26,7 +48,28 @@ class Boxer:
 
 
 def create_boxer(name: str, weight: int, height: int, reach: float, age: int) -> None:
+    """creates a new boxer to put in database.
 
+    Args:
+        name (str): The name of the new boxer.
+        weight (int): The weight of the new boxer,
+                                    must be greater than 125.
+        height (int): The height of the new boxer.
+                                    must be greater than 0.
+        reach (float): Reach is the distance from the boxer's shoulder to their fist.
+                                    must be greater than 0.
+        age (int): The age of the new boxer.
+                                    must be between age of 18 and 40
+
+    Raises:
+        ValueError: If the weight is below 125.
+        ValueError: If the height is less than 0.
+        ValueError: If the reach is less than 0.
+        ValueError: If the age is not between 18 and 40.
+        ValueError: If a boxer with the name already exists.
+        e: catches any various database issues with sqlite3 during interaction and raises the exception e.
+
+    """
     if weight < 125:
         raise ValueError(f"Invalid weight: {weight}. Must be at least 125.")
     if height <= 0:
@@ -60,6 +103,15 @@ def create_boxer(name: str, weight: int, height: int, reach: float, age: int) ->
 
 
 def delete_boxer(boxer_id: int) -> None:
+    """deletes a certain boxer from the database.
+
+    Args:
+        boxer_id (int): The id of the boxer to remove.
+
+    Raises:
+        e: catches any various database issues with sqlite3 during interaction and raises the exception e.
+
+    """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -76,6 +128,20 @@ def delete_boxer(boxer_id: int) -> None:
 
 
 def get_leaderboard(sort_by: str = "wins") -> List[dict[str, Any]]:
+    """creates a new boxer to put in database.
+
+    Args:
+        sort_by (str): the sorting type for the leaderboard of boxers
+                                default value is wins if none is provided
+        
+    Returns:
+        List[boxer]: A list of all boxers sorted in the way provided by sort_by
+    Raises:
+        ValueError: If the sort_by value is 4neither win_pct or wins
+        
+        e: catches any various database issues with sqlite3 during interaction and raises the exception e.
+
+    """
     query = """
         SELECT id, name, weight, height, reach, age, fights, wins,
                (wins * 1.0 / fights) AS win_pct
@@ -119,6 +185,18 @@ def get_leaderboard(sort_by: str = "wins") -> List[dict[str, Any]]:
 
 
 def get_boxer_by_id(boxer_id: int) -> Boxer:
+    """creates a new boxer to put in database.
+
+    Args:
+        boxer_id (int): The id of the boxer object you want to get.
+        
+    Returns:
+        boxer: returns a boxer object corresponding to the boxer_id
+    Raises:
+        ValueError: If no boxer was found with the given id
+        e: catches any various database issues with sqlite3 during interaction and raises the exception e.
+
+    """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
