@@ -45,7 +45,9 @@ class Boxer:
 
     def __post_init__(self):
         self.weight_class = get_weight_class(self.weight)  # Automatically assign weight class
+        """Automatically assigns a weight class given the weight attribute.
 
+        """
 
 def create_boxer(name: str, weight: int, height: int, reach: float, age: int) -> None:
     """creates a new boxer to put in database.

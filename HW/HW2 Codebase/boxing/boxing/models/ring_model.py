@@ -12,10 +12,24 @@ configure_logger(logger)
 
 
 class RingModel:
+    """
+    A class that manages the fight between boxers in the ring.
+    """
     def __init__(self):
         self.ring: List[Boxer] = []
+        """Sets the ring as empty, with no boxers currently inside.
 
+        """
     def fight(self) -> str:
+        """
+        Simulates a fight between two boxers and returns the outcome.
+
+        Returns: 
+            str: returns the name of the boxer that won the match.
+        
+        Raises:
+            ValueError: If there are less than 2 boxers in the ring, cannot fight.
+        """
         if len(self.ring) < 2:
             raise ValueError("There must be two boxers to start a fight.")
 
@@ -46,11 +60,30 @@ class RingModel:
         return winner.name
 
     def clear_ring(self):
+        """
+        Clears the boxers from the ring
+
+        Returns: 
+            bool: True if the ring was cleared, false if the ring was already empty and nothing needed to be done.
+        """
         if not self.ring:
             return
         self.ring.clear()
 
     def enter_ring(self, boxer: Boxer):
+        """
+        Allows a boxer to enter the ring, by adding the boxer object to the ring, which is a list of boxers.
+
+        Args:
+            Boxer: The boxer object you are adding to the ring
+
+        Returns: 
+            bool: bool: True if the ring was cleared, false if the ring was already empty and nothing needed to be done.
+        
+        Raises:
+            TypeError: If the argument supposed to be a boxer object was the wrong type
+            ValueError: The ring is full and cannot have more than two boxers.
+        """
         if not isinstance(boxer, Boxer):
             raise TypeError(f"Invalid type: Expected 'Boxer', got '{type(boxer).__name__}'")
 
@@ -64,7 +97,6 @@ class RingModel:
             pass
         else:
             pass
-
         return self.ring
 
     def get_fighting_skill(self, boxer: Boxer) -> float:
