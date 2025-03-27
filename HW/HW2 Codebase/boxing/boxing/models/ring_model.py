@@ -16,6 +16,7 @@ class RingModel:
     A class that manages the fight between boxers in the ring.
     """
     def __init__(self):
+        logger.info("The ring has been set to empty with no boxers inside")
         self.ring: List[Boxer] = []
         """Sets the ring as empty, with no boxers currently inside.
 
@@ -30,14 +31,16 @@ class RingModel:
         Raises:
             ValueError: If there are less than 2 boxers in the ring, cannot fight.
         """
+        logger.info("Received request to simulate a fight between 2 boxers")
         if len(self.ring) < 2:
+            logger.error("There must be two boxers to start a fight.")
             raise ValueError("There must be two boxers to start a fight.")
 
         boxer_1, boxer_2 = self.get_boxers()
-
+        logger.info("Both boxer objects have been assigned to boxer_1, boxer_2")
         skill_1 = self.get_fighting_skill(boxer_1)
         skill_2 = self.get_fighting_skill(boxer_2)
-
+        logger.info("Both boxers have established their fighting skills")
         # Compute the absolute skill difference
         # And normalize using a logistic function for better probability scaling
         delta = abs(skill_1 - skill_2)
@@ -48,15 +51,19 @@ class RingModel:
         if random_number < normalized_delta:
             winner = boxer_1
             loser = boxer_2
+            logger.info("Boxer 1 has won the fight, boxer 2 has lost")
         else:
             winner = boxer_2
             loser = boxer_1
+            logger.info("Boxer 2 has won the fight, boxer 1 has lost")
 
         update_boxer_stats(winner.id, 'win')
         update_boxer_stats(loser.id, 'loss')
+        logger.info("The stats have been updated (win / loss) for both boxers in the database")
 
         self.clear_ring()
-
+        logger.info("The ring has been succesfuly cleared")
+        logger.info("The name of the winning boxer has been returned")
         return winner.name
 
     def clear_ring(self):
@@ -66,8 +73,11 @@ class RingModel:
         Returns: 
             bool: True if the ring was cleared, false if the ring was already empty and nothing needed to be done.
         """
+        logger.info("Received request to clear the ring of all boxers")
         if not self.ring:
+            logger.warning("The ring was already empty so nothing has been done")
             return
+        logger.info("The ring has been succesfuly cleared")
         self.ring.clear()
 
     def enter_ring(self, boxer: Boxer):
@@ -84,12 +94,16 @@ class RingModel:
             TypeError: If the argument supposed to be a boxer object was the wrong type
             ValueError: The ring is full and cannot have more than two boxers.
         """
+        logger.info(f"Received request to have {boxer} enter the ring")
         if not isinstance(boxer, Boxer):
+            logger.error(f"Invalid type: Expected 'Boxer', got '{type(boxer).__name__}'")
             raise TypeError(f"Invalid type: Expected 'Boxer', got '{type(boxer).__name__}'")
 
         if len(self.ring) >= 2:
+            logger.warning(f"Ring is full, cannot add more boxers.")
             raise ValueError("Ring is full, cannot add more boxers.")
 
+        logger.info(f"{boxer} has succesfuly entered the ring.")
         self.ring.append(boxer)
 
     def get_boxers(self) -> List[Boxer]:
