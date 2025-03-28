@@ -115,8 +115,10 @@ class RingModel:
             List[Boxer]: A list of boxer objects currently in the ring (maximum of 2)
         """
         if not self.ring:
+            logger.info("Requested list of boxers: the ring is currently empty")
             pass
         else:
+            logger.info(f"Request list of boxers: {len(self.ring)} boxer(s) in the ring.")
             pass
         return self.ring
 
@@ -141,7 +143,14 @@ class RingModel:
             float: The calculated fighting skill value.
         """
         # Arbitrary calculations
+        name_length = len(boxer.name)
         age_modifier = -1 if boxer.age < 25 else (-2 if boxer.age > 35 else 0)
         skill = (boxer.weight * len(boxer.name)) + (boxer.reach / 10) + age_modifier
+
+        logger.info(
+            f"Calculated fighting skill for {boxer.name}: "
+            f"weight={boxer.weight}, name_length={name_length}, "
+            f"reach={boxer.reach}, age={boxer.age}, age_modifier={age_modifier}, skill={skill}"
+        )
 
         return skill
