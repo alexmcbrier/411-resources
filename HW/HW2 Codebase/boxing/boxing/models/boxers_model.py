@@ -251,6 +251,19 @@ def get_boxer_by_id(boxer_id: int) -> Boxer:
 
 
 def get_boxer_by_name(boxer_name: str) -> Boxer:
+    """
+    Retrives a boxer from the database by their name.
+
+    Args:
+        boxer_name (str): The name of the boxer to retrieve.
+
+    Returns:
+        Boxer: A boxer object representing the retrieved boxer.
+    
+        Raises:
+            ValueError: If no boxer was found with the given name
+            sqlite3.Error: e exerception, any error occurred with the sqlite3 database
+    """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -275,6 +288,18 @@ def get_boxer_by_name(boxer_name: str) -> Boxer:
 
 
 def get_weight_class(weight: int) -> str:
+    """
+    Determines a boxer's weight class based on their weight.
+
+    Args: 
+        weight (int): The weight of the boxer.
+
+    Returns:
+        str: The weight class ('HEAVYWEIGHT', 'MIDDLEWEIGHT', 'LIGHTWEIGHT', or 'FEATHERWEIGHT').
+
+    Raises: 
+        ValueError: If weight is below 125, which is the minimum threshold
+    """
     if weight >= 203:
         weight_class = 'HEAVYWEIGHT'
     elif weight >= 166:
@@ -290,6 +315,20 @@ def get_weight_class(weight: int) -> str:
 
 
 def update_boxer_stats(boxer_id: int, result: str) -> None:
+    """
+    Updates a boxer's record based on a match's result
+
+    Increments the number of fights and, if the result is 'win', also increments wins.
+
+    Args:
+        boxer_id (int): The ID of the boxer whose record is to update
+        result (str): The match's result ('win' or 'loss').
+    
+    Raises:
+        ValueError: If the result is not 'win' or 'loss'.
+        ValuError: If the boxer with the given ID was not found.
+        sqlite3.Error: e exerception, any error occurred with the sqlite3 database
+    """
     if result not in {'win', 'loss'}:
         raise ValueError(f"Invalid result: {result}. Expected 'win' or 'loss'.")
 
