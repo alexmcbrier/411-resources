@@ -16,11 +16,12 @@ class RingModel:
     A class that manages the fight between boxers in the ring.
     """
     def __init__(self):
+        """
+        Initializes an empty boxing ring.
+        """
         logger.info("The ring has been set to empty with no boxers inside")
         self.ring: List[Boxer] = []
-        """Sets the ring as empty, with no boxers currently inside.
 
-        """
     def fight(self) -> str:
         """
         Simulates a fight between two boxers and returns the outcome.
@@ -107,6 +108,12 @@ class RingModel:
         self.ring.append(boxer)
 
     def get_boxers(self) -> List[Boxer]:
+        """
+        Retrieves the current list of boxers in the ring.
+
+        Returns:
+            List[Boxer]: A list of boxer objects currently in the ring (maximum of 2)
+        """
         if not self.ring:
             pass
         else:
@@ -114,6 +121,25 @@ class RingModel:
         return self.ring
 
     def get_fighting_skill(self, boxer: Boxer) -> float:
+        """
+        Calculates a boxer's fighting skill based on weight, reach, age, and name length.
+
+        The skill is computed with the formula: 
+            skill = (weight * name_length) + (reach / 10) + age_modifier
+
+        - name_length is the number of characters in the boxer's name.
+        - reach is divided by 10 to reduce its scale.
+        - age_modifier is:
+            - -1 if age < 25
+            -  0 if 25 <= age <= 35
+            - -2 if age > 35
+            
+        Args:
+            boxer (Boxer): The boxer to calculate the skills
+
+        Returns:
+            float: The calculated fighting skill value.
+        """
         # Arbitrary calculations
         age_modifier = -1 if boxer.age < 25 else (-2 if boxer.age > 35 else 0)
         skill = (boxer.weight * len(boxer.name)) + (boxer.reach / 10) + age_modifier
