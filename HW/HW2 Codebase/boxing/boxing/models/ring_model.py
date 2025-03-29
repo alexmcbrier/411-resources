@@ -143,6 +143,7 @@ class RingModel:
             float: The calculated fighting skill value.
         """
         # Arbitrary calculations
+        logger.info(f"Beginning to calculate boxer {boxer.name}'s fighting skill.")
         name_length = len(boxer.name)
         age_modifier = -1 if boxer.age < 25 else (-2 if boxer.age > 35 else 0)
         skill = (boxer.weight * len(boxer.name)) + (boxer.reach / 10) + age_modifier
