@@ -192,22 +192,73 @@ def test_get_boxer_by_name_not_found(mock_cursor):
 #
 ######################################################
 
-def test_get_leaderboard_ordered_by_wins():
+def test_get_leaderboard_ordered_by_wins(mock_cursor):
     """Test retrieving the leaderboard ordered by number of wins."""
+    mock_cursor.fetchall.return_value = [
+    (2, "Tyson", 230, 185, 80.0, 35, 12, 10, 0.83),
+    (1, "Ali", 200, 180, 75.0, 30, 10, 8, 0.8),  
+    (3, "George", 210, 190, 78.0, 32, 8, 6, 0.75)
+]
+    result = get_leaderboard(sort_by="wins")
+    
+    expected_result = [
+    {'id': 2, 'name': 'Tyson', 'weight': 230, 'height': 185, 'reach': 80.0, 'age': 35, 'weight_class': 'HEAVYWEIGHT', 'fights': 12, 'wins': 10, 'win_pct': 83.0}, 
+    {'id': 1, 'name': 'Ali', 'weight': 200, 'height': 180, 'reach': 75.0, 'age': 30, 'weight_class': 'MIDDLEWEIGHT', 'fights': 10, 'wins': 8, 'win_pct': 80.0}, 
+    {'id': 3, 'name': 'George', 'weight': 210, 'height': 190, 'reach': 78.0, 'age': 32, 'weight_class': 'HEAVYWEIGHT', 'fights': 8, 'wins': 6, 'win_pct': 75.0}
+    ]
+    
+    # Assert that the leaderboard matches the expected result
+    assert result == expected_result, f"Expected {expected_result}, but got {result}"
+
+    expected_query = normalize_whitespace("""
+        SELECT id, name, weight, height, reach, age, fights, wins, (wins * 1.0 / fights) AS win_pct
+        FROM boxers
+        WHERE fights > 0
+        ORDER BY wins DESC           
+    """)
+    actual_query = normalize_whitespace(mock_cursor.execute.call_args[0][0])
+
+    assert actual_query == expected_query, "The SQL query did not match the expected structure."
     # mock fetchall to return multiple rows,
     # and assert that the results are sorted by the 'wins' field.
-    pass
 
-def test_get_leaderboard_ordered_by_win_pct():
+def test_get_leaderboard_ordered_by_win_pct(mock_cursor):
     """Test retrieving the leaderboard ordered by win percentage."""
+    mock_cursor.fetchall.return_value = [
+    (2, "Tyson", 230, 185, 80.0, 35, 12, 10, 0.83),
+    (1, "Ali", 200, 180, 75.0, 30, 10, 8, 0.8),  
+    (3, "George", 210, 190, 78.0, 32, 8, 6, 0.75)
+]
+    result = get_leaderboard(sort_by="wins")
+    
+    expected_result = [
+    {'id': 2, 'name': 'Tyson', 'weight': 230, 'height': 185, 'reach': 80.0, 'age': 35, 'weight_class': 'HEAVYWEIGHT', 'fights': 12, 'wins': 10, 'win_pct': 83.0}, 
+    {'id': 1, 'name': 'Ali', 'weight': 200, 'height': 180, 'reach': 75.0, 'age': 30, 'weight_class': 'MIDDLEWEIGHT', 'fights': 10, 'wins': 8, 'win_pct': 80.0}, 
+    {'id': 3, 'name': 'George', 'weight': 210, 'height': 190, 'reach': 78.0, 'age': 32, 'weight_class': 'HEAVYWEIGHT', 'fights': 8, 'wins': 6, 'win_pct': 75.0}
+    ]
+    
+    # Assert that the leaderboard matches the expected result
+    assert result == expected_result, f"Expected {expected_result}, but got {result}"
+
+    expected_query = normalize_whitespace("""
+        SELECT id, name, weight, height, reach, age, fights, wins, (wins * 1.0 / fights) AS win_pct
+        FROM boxers
+        WHERE fights > 0
+        ORDER BY wins DESC           
+    """)
+    actual_query = normalize_whitespace(mock_cursor.execute.call_args[0][0])
+
+    assert actual_query == expected_query, "The SQL query did not match the expected structure."
     # validate that win_pct is calculated correctly
     # and ordering is based on that column.
-    pass
 
-def test_get_leaderboard_invalid_sort_by():
+def test_get_leaderboard_invalid_sort_by(mock_cursor):
     """Test error when sort_by parameter is invalid (e.g., 'losses')."""
     # Provide an invalid string and assert that ValueError is raised.
-    pass
+    mock_cursor.fetchone.return_value = None
+    invalid_sort_by = 'losses'
+    with pytest.raises(ValueError, match="Invalid sort_by parameter: losses"):
+        get_leaderboard(sort_by=invalid_sort_by)
 
 ######################################################
 #
@@ -251,23 +302,64 @@ def test_get_weight_class_invalid():
 #    Update Boxer
 #
 ######################################################
-def test_update_boxer_stats_win():
+def test_update_boxer_stats_win(mock_cursor):
     """Test updating boxer stats after a win (should increase both fights and wins)."""
-    # Simulate SELECT returning a boxer and assert the UPDATE query is correct.
-    pass
+    mock_cursor.fetchone.return_value = True
+    
+    boxer_id = 1 
+    result = 'win' 
+    update_boxer_stats(boxer_id, result)
+    expected_query = normalize_whitespace("""
+        UPDATE boxers SET fights = fights + 1, wins = wins + 1 WHERE id = ?
+    """)
+    actual_query = normalize_whitespace(mock_cursor.execute.call_args_list[1][0][0])
+    assert actual_query == expected_query, "The SQL query did not match the expected structure."
+    
+    actual_arguments = mock_cursor.execute.call_args_list[1][0][1]
 
-def test_update_boxer_stats_loss():
+    expected_arguments = (boxer_id,)
+    
+    assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
+    # Simulate SELECT returning a boxer and assert the UPDATE query is correct.
+    
+
+def test_update_boxer_stats_loss(mock_cursor):
     """Test updating boxer stats after a loss (should increase only fights)."""
+    mock_cursor.fetchone.return_value = True
+    
+    boxer_id = 1 
+    result = 'loss' 
+    update_boxer_stats(boxer_id, result)
+    expected_query = normalize_whitespace("""
+        UPDATE boxers SET fights = fights + 1 WHERE id = ?
+    """)
+    actual_query = normalize_whitespace(mock_cursor.execute.call_args_list[1][0][0])
+    assert actual_query == expected_query, "The SQL query did not match the expected structure."
+    
+    actual_arguments = mock_cursor.execute.call_args_list[1][0][1]
+
+    expected_arguments = (boxer_id,)
+    
+    assert actual_arguments == expected_arguments, f"The SQL query arguments did not match. Expected {expected_arguments}, got {actual_arguments}."
     # Simulate SELECT returning a boxer and assert the UPDATE query for loss is correct.
     pass
 
-def test_update_boxer_stats_invalid_result():
+def test_update_boxer_stats_invalid_result(mock_cursor):
     """Test error when result is not 'win' or 'loss'."""
     # Pass a result like 'draw' and ensure it raises a ValueError.
-    pass
+    mock_cursor.fetchone.return_value = None
+    boxer_id = 1 
+    invalid_result = 'draw' 
+    with pytest.raises(ValueError, match="Invalid result: draw. Expected 'win' or 'loss'."):
+        update_boxer_stats(boxer_id, invalid_result)
 
 
-def test_update_boxer_stats_bad_id():
+
+def test_update_boxer_stats_bad_id(mock_cursor):
     """Test error when updating stats for a non-existent boxer."""
     # Simulate SELECT returning None and ensure ValueError is raised.
-    pass
+    mock_cursor.fetchone.return_value = None
+    invalid_id = 5 
+    result = 'win' 
+    with pytest.raises(ValueError, match="Boxer with ID 5 not found."):
+        update_boxer_stats(invalid_id, result)
