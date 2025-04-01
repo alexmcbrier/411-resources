@@ -51,20 +51,41 @@ def test_clear_ring(ring_model, sample_boxer1):
 ##################################################
 # Fight Management Tests
 ##################################################
-def test_fight(ring_model, sample_boxer1, sample_boxer2, mocker):
+def test_fight(ring_model, sample_boxer1, sample_boxer2, mock_update_fight_record):
     """Test fight simulation between two boxers."""
-    pass
+    ring_model.enter_ring(sample_boxer1)
+    ring_model.enter_ring(sample_boxer2)
+
+    winner_name = ring_model.fight()
     
-    
+    winner = sample_boxer1 if winner_name == sample_boxer1.name else sample_boxer2
+    loser = sample_boxer2 if winner == sample_boxer1 else sample_boxer1
+
+    assert winner_name in [sample_boxer1.name, sample_boxer2.name]
+    mock_update_fight_record.assert_any_call(winner.id, 'win')
+    mock_update_fight_record.assert_any_call(loser.id, 'loss')
+
+
 
 def test_fight_not_enough_boxers(ring_model, sample_boxer1):
     """Test that a fight is not possible with less than 2 boxers."""
-    pass
+    ring_model.enter_ring(sample_boxer1)
+    with pytest.raises(ValueError, match="There must be two boxers to start a fight."):
+        ring_model.fight()
 
-
-def test_fight_winner_stats_update(ring_model, sample_boxer1, sample_boxer2):
+def test_fight_winner_stats_update(ring_model, sample_boxer1, sample_boxer2, mock_update_fight_record):
     """Test that the winner's stats are updated correctly after a fight."""
-    pass
+    ring_model.enter_ring(sample_boxer1)
+    ring_model.enter_ring(sample_boxer2)
+
+    winner_name = ring_model.fight()
+
+    winner = sample_boxer1 if sample_boxer1.name == winner_name else sample_boxer2
+    loser = sample_boxer2 if winner == sample_boxer1 else sample_boxer1
+
+    mock_update_fight_record.assert_any_call(winner.id, 'win')
+    mock_update_fight_record.assert_any_call(loser.id, 'loss')
+
 
 ##################################################
 # Boxer Skill Calculation Tests

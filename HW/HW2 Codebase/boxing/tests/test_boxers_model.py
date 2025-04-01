@@ -229,7 +229,7 @@ def test_get_leaderboard_ordered_by_win_pct(mock_cursor):
     (1, "Ali", 200, 180, 75.0, 30, 10, 8, 0.8),  
     (3, "George", 210, 190, 78.0, 32, 8, 6, 0.75)
 ]
-    result = get_leaderboard(sort_by="wins")
+    result = get_leaderboard(sort_by="win_pct") 
     
     expected_result = [
     {'id': 2, 'name': 'Tyson', 'weight': 230, 'height': 185, 'reach': 80.0, 'age': 35, 'weight_class': 'HEAVYWEIGHT', 'fights': 12, 'wins': 10, 'win_pct': 83.0}, 
@@ -244,7 +244,7 @@ def test_get_leaderboard_ordered_by_win_pct(mock_cursor):
         SELECT id, name, weight, height, reach, age, fights, wins, (wins * 1.0 / fights) AS win_pct
         FROM boxers
         WHERE fights > 0
-        ORDER BY wins DESC           
+        ORDER BY win_pct DESC
     """)
     actual_query = normalize_whitespace(mock_cursor.execute.call_args[0][0])
 
