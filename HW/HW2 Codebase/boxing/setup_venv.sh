@@ -25,7 +25,7 @@ if [ ! -d "$VENV_DIR" ]; then
     exit 1
   fi
 
-  echo "✅ Virtual environment setup complete."
+  echo "Virtual environment setup complete."
 else
   echo "Virtual environment already exists. Activating..."
   source "$VENV_DIR/bin/activate"
